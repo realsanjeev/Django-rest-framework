@@ -1,4 +1,5 @@
 ### Set up environment
+> branch: "intro_generic_class"
 ```
 python -m venv venv
 source venv/Scripts/activate
