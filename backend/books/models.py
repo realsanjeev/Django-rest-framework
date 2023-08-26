@@ -7,7 +7,8 @@ class Book(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2, default=9.99)
 
     @property
-    def get_sale_price(self):
+    def sales_price(self):
         return '%.2f' % (float(self.price) * 0.8)
     
-    
+    def get_discount_price(self):
+        return '%.2f' % (float(self.price) *0.2)
