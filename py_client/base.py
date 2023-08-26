@@ -56,4 +56,4 @@ get_response(book_endpoint)
 
 # post to endpoint
 post_response(book_endpoint,
-              data={"title": "Work with api python"})
+              data={"title": "Work with api python2", "price": 33.32})

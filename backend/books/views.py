@@ -20,7 +20,7 @@ def book_details(request, *args, **kwargs):
         print(data)
         serializer = BookSerializer(data=data)
         if serializer.is_valid(raise_exception=True):
-            print(serializer.data)
+            print(serializer.validated_data)
             # serializer.save()
             return Response({"message": "successful valid post", "data": serializer.data},
                             status=status.HTTP_201_CREATED)
