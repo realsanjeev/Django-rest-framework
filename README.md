@@ -68,4 +68,5 @@ Look endpoint properly if `/` is needed or not to pass request body
 #### Order
 1. **`/api/`** - Simple api through django
 2. **`/api/product/`** - Passing model return data to endpoint using `model_to_dict` method
+3. **`v1/api/1/`** - GEt the record with primary key(ie. id) =1
 

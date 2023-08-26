@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.book_details)
+    path("<int:pk>/", views.BookDetailAPIView.as_view())
 ]

@@ -9,8 +9,8 @@ class BookSerializer(serializers.ModelSerializer):
 
     def get_discount(self, obj):
         # check attribute in instance
-        if not hasattr(self, "id"):
-            return None
+        # if not hasattr(self, "get_discount_price"):
+        #     return None
         # or check serializer is instance. 
         # Same as above to check serialixer instance
         if not isinstance(self, Book):
