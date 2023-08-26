@@ -104,6 +104,23 @@ class BookDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixi
 ```
 
 In this example, the `BookDetailAPIView` class uses mixins to handle different methods (GET, PUT, DELETE) in the same URL endpoint. It inherits from `generics.GenericAPIView` to provide a common base for handling these methods. The `get`, `put`, and `delete` methods correspond to the respective HTTP methods and use the appropriate mixin methods (`retrieve`, `update`, `destroy`) to perform the actions.
+
+### Authentication and Permission In Rest API
+```python
+from rest_framework import permissions, authentication
+class BookAPIView(APIView):
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+```
+#### Authentication
+- `SessionAuthentication` means user will be authentication until user log out or session expire
+
+#### Permission
+- `IsAuthenticatedOrReadOnly` allows user `GET` method while other methods are not allowed. Only authenticated user are allowed other Method, i.e, `POST`, `PUT`, `PATCH` and `DELETE`.
+- `AllowAny` allows user all methods without authentication within which it is defined
+- `IsAuthenticated` only allows authentication user to perform any method operation
+- `IsAdminUser` only allows admin to perform any operation in api. 
+- `DjangoModelPermissions` allows the authentication from django login auth. But it allows `GET` permission regardless. See Documentation
 ## REQUEST the endpoint
 #### REQUESTS 
 Look endpoint properly if `/` is needed or not to pass request body

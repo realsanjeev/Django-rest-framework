@@ -5,7 +5,7 @@ simple_endpoint = "http://localhost:8000/api/"
 model_endpoint = "http://localhost:8000/api/product"
 
 # REST_FRAMEWORK endpoints api responder
-book_endpoint = "http://localhost:8000/v1/api/"
+book_endpoint = "http://localhost:8000/v2/api/"
 
 def get_response(url_endpoint: str,
                 json: dict=None,

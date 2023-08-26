@@ -1,7 +1,7 @@
 import requests
 
 data = {"title": "Life is beautiful"}
-endpoint = "http://localhost:8000/v1/api/create/"
+endpoint = "http://localhost:8000/v2/api/"
 
 try:
     get_response = requests.post(endpoint, json=data)

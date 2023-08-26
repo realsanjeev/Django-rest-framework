@@ -1,6 +1,6 @@
 import requests
 
-endpoint = "http://localhost:8000/v2/api/1"
+endpoint_parent = "http://localhost:8000/v2/api/"
 
 def get_response(url_endpoint: str,
                 json: dict=None,
@@ -19,4 +19,4 @@ def get_response(url_endpoint: str,
     response.close()
     return None
 
-get_response(endpoint)
+get_response(endpoint_parent)

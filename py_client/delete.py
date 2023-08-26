@@ -9,7 +9,7 @@ except:
     book_id = None
 
 
-endpoint = f"http://localhost:8000/v1/api/{book_id}/delete/"
+endpoint = f"http://localhost:8000/v2/api/{book_id}/"
 try:
     get_response = requests.delete(endpoint)
     print(get_response.content)

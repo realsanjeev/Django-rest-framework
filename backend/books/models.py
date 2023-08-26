@@ -12,3 +12,6 @@ class Book(models.Model):
     
     def get_discount_price(self):
         return '%.2f' % (float(self.price) *0.2)
+    
+    def __str__(self) -> str:
+        return self.title
