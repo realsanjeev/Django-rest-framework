@@ -60,6 +60,50 @@ class MyModelSerializer(serializers.ModelSerializer):
 
 In this example, the `calculate_discount` method is assumed to be present in the model, and if it exists, the method's result is included in the serialized data. Additionally, this approach ensures that any discrepancies between the model's attributes and the serialization process are handled effectively.
 
+### Class View
+#### Generic View
+In order to retrieve data from a model, certain attributes such as `lookup_field`, `queryset`, and `serializer_class` need to be defined. This ensures the correct retrieval of data. Here's the explanation and a corrected version of the provided code:
+
+```python
+# Explanation:
+# To retrieve data from a model, several attributes such as 'lookup_field', 'queryset',
+# and 'serializer_class' must be defined. These attributes ensure that data can be
+# retrieved accurately and serialized properly.
+
+from rest_framework import generics
+
+class BookDetailAPIView(generics.RetrieveAPIView):
+    # 'lookup_field' determines the field used for looking up the object in the URL.
+    lookup_field = 'pk'  # The default lookup field is "pk", which refers to the primary key.
+
+    # 'queryset' specifies the set of objects from which data is retrieved.
+    queryset = Book.objects.all()  # Replace 'Book' with your actual model class.
+
+    # 'serializer_class' defines the serializer used to convert model data into JSON.
+    serializer_class = BookSerializer  # Replace 'BookSerializer' with your actual serializer class.
+```
+
+In order to handle different HTTP methods (GET, POST, PUT, DELETE) for requests in the same URL endpoint, you can utilize a `Mixin` class along with a `View` class. The following is an example of how you can achieve this:
+
+```python
+from rest_framework import generics, mixins
+
+class BookDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    lookup_field = 'pk'
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+```
+
+In this example, the `BookDetailAPIView` class uses mixins to handle different methods (GET, PUT, DELETE) in the same URL endpoint. It inherits from `generics.GenericAPIView` to provide a common base for handling these methods. The `get`, `put`, and `delete` methods correspond to the respective HTTP methods and use the appropriate mixin methods (`retrieve`, `update`, `destroy`) to perform the actions.
 ## REQUEST the endpoint
 #### REQUESTS 
 Look endpoint properly if `/` is needed or not to pass request body
