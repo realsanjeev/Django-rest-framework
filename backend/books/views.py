@@ -1,17 +1,14 @@
-from rest_framework import status, permissions, authentication
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from books.permissions import IsStaffPermission
-from books.authentication import TokenAuthentication
 from books.serializers import BookSerializer
 from books.models import Book
 
 class BookAPIView(APIView):
     queryset = Book.objects.all()
-    authentication_classes = [authentication.SessionAuthentication,
-                              TokenAuthentication]
     permission_classes = [permissions.IsAdminUser, IsStaffPermission]
 
     def get_queryset(self):

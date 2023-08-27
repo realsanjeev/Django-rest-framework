@@ -1,5 +1,5 @@
 ### Set up environment
-> branch: "intro_generic_class"
+> branch: "default-setting_mixins"
 ```
 python -m venv venv
 source venv/Scripts/activate
@@ -10,10 +10,12 @@ pip install -r requirements.txt
 django-admin startproject server .
 python manage.py runserver 8000
 ```
-### Django RESTfull
-- `JsonResponse`: used to pass `json` type data to endpoint
-- `HttpResponse`: used to pass `text/html` data to endpoint. We can make it to send `json` data by changing `header`. But it is quite tedious.
-- When passing the `json` without `django-framework` it takes lot to code program that passes the new firld which is obtained by doing some calculation in model data.
+### Django RESTful
+- **`JsonResponse`**: This function is employed to send data in the `json` format to an endpoint. It's a straightforward way to structure and transmit JSON data within the response.
+
+- **`HttpResponse`**: This function is used to transmit data in the `text/html` format to an endpoint. While it can be adjusted to send `json` data by modifying the HTTP headers, this approach can be cumbersome.
+
+- When dealing with data that requires additional processing or calculations in your model, sending JSON data without utilizing the Django framework can involve a substantial amount of coding.
 
 #### Django_rest_framework
 It is essential to serialize data into JSON format to be sent as a REST API response and deserialize incoming requests to be processed on the backend. The Django Rest Framework offers a variety of tools for sending and receiving data, facilitating the work with REST APIs on the backend. This framework is built on top of the Django framework.
@@ -29,7 +31,7 @@ class ModelName(models.Model):
         return '%.2f' % (float(self.price) * 0.7)
 ```
 
-In serializers:
+In `serializers.py`:
 
 ```python
 # serializers.py
@@ -39,7 +41,7 @@ class ModelNameSerializer(serializers.ModelSerializer):
         fields = [...otherfields, "sales_price"]
 ```
 
-Alternatively, we can add a method in the model without using a decorator in `models.py`. And we can change how field name in response is changed from the method name. This allows more things that can be done in serializer to enruch the serializer. Such `example` is shown below:
+Alternatively, we can add a method in the model without using a decorator in `models.py`. And we can change how field name in response is changed from the method name. This allows more things that can be done in serializer to enrich the serializer. Such `example` is shown below:
 
 ```python
 class MyModelSerializer(serializers.ModelSerializer):
@@ -49,16 +51,15 @@ class MyModelSerializer(serializers.ModelSerializer):
 
     def get_discount(self, obj):
         # check attribute in instance
-        if not hasattr(self, "id"):
+        if not hasattr(obj, "id"):
             return None
         # or check serializer is instance. 
         # Same as above to check serialixer instance
-        if not isinstance(self, Book):
+        if not isinstance(obj, Book):
             return None
         return obj.get_discount_price()
 ```
 
-In this example, the `calculate_discount` method is assumed to be present in the model, and if it exists, the method's result is included in the serialized data. Additionally, this approach ensures that any discrepancies between the model's attributes and the serialization process are handled effectively.
 
 ### Class View
 #### Generic View
@@ -88,7 +89,10 @@ In order to handle different HTTP methods (GET, POST, PUT, DELETE) for requests 
 ```python
 from rest_framework import generics, mixins
 
-class BookDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+class BookDetailAPIView(mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        mixins.DestroyModelMixin,
+                        generics.GenericAPIView):
     lookup_field = 'pk'
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -105,31 +109,45 @@ class BookDetailAPIView(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixi
 
 In this example, the `BookDetailAPIView` class uses mixins to handle different methods (GET, PUT, DELETE) in the same URL endpoint. It inherits from `generics.GenericAPIView` to provide a common base for handling these methods. The `get`, `put`, and `delete` methods correspond to the respective HTTP methods and use the appropriate mixin methods (`retrieve`, `update`, `destroy`) to perform the actions.
 
-### Authentication and Permission In Rest API
+### Authentication and Permissions in REST API
+
 ```python
 from rest_framework import permissions, authentication
+
 class BookAPIView(APIView):
     authentication_classes = [authentication.SessionAuthentication]
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 ```
+
 #### Authentication
-- `SessionAuthentication` means user will be authentication until user log out or session expire.
-- default header is `Authentication Token: tokenaeskds2...`. To change `Token` to other keyword. Change `keyword` in `authentication.py` from `TokenAuthentication` and import in `views`. *Note: response of auth is {'token': 'sal..'} regardless. But when we send header to request resource. It should have {'Authentication': f'Bearer {token}'} as header. `Bearer` is changed keyword* 
 
+- The `SessionAuthentication` class signifies that a user remains authenticated until they log out or their session expires.
 
-#### Permission
-- `IsAuthenticatedOrReadOnly` allows user `GET` method while other methods are not allowed. Only authenticated user are allowed other Method, i.e, `POST`, `PUT`, `PATCH` and `DELETE`.
-- `AllowAny` allows user all methods without authentication within which it is defined
-- `IsAuthenticated` only allows authentication user to perform any method operation
-- `IsAdminUser` only allows admin to perform any operation in api. 
-- `DjangoModelPermissions` allows the authentication from django login auth. But it allows `GET` permission regardless. See Documentation
+- By default, the authentication header is in the format `Authentication: Token tokenaeskds2...`. To customize the keyword used in the header, modify the `authentication.py` file from `TokenAuthentication`. Once changed, import the altered class into your `views`. Keep in mind that the authentication response will continue to be in the form `{'token': 'sal..'}`. However, when sending a header to request a resource, the header should be formatted as `{'Authorization': f'Bearer {token}'}`, where `Bearer` is the updated keyword.
 
-##### Custom Permission
-***Always follow least amount of permission than more permission. It is best code of conduct. ***
-Permission is set by admin and checked in `app-name/permissions.py`
+#### Permissions
+
+Permissions control the actions that different users can perform within a REST API:
+
+- The `IsAuthenticatedOrReadOnly` permission grants users permission to use the `GET` method while restricting other methods. For instance, only authenticated users are permitted to use methods like `POST`, `PUT`, `PATCH`, and `DELETE`.
+
+- The `AllowAny` permission allows unrestricted access to all methods without requiring authentication, if placed within the designated scope.
+
+- The `IsAuthenticated` permission exclusively permits authenticated users to perform any operation.
+
+- The `IsAdminUser` permission confines API operations to administrators only.
+
+- The `DjangoModelPermissions` permission is aligned with the Django authentication system. However, it grants permission for the `GET` method by default. For a more comprehensive understanding, refer to the documentation.
+
+##### Custom Permissions
+
+**Remember, less permissions are better than more. Prioritize minimizing permissions for a better code of conduct.**
+
+Permissions can be customized to suit your needs and should adhere to the principle of least privilege. Such custom permissions are defined in `app-name/permissions.py`:
+
 ```python
 # api/permissions.py
-from rest_framework import permission
+from rest_framework import permissions
 
 class IsStaffPermission(permissions.DjangoModelPermissions):
     def has_permission(self, request, view):
@@ -139,14 +157,35 @@ class IsStaffPermission(permissions.DjangoModelPermissions):
             return False
         return super().has_permission(request, view)
 ```
+#### Default REST Framework Settings and Mixins
+
+These configurations are applied when you wish to utilize default settings across your entire project's API. To implement this, add the following to your `settings.py` file:
+
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'books.authentication.TokenAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ]
+}
+```
+
+We can streamline the process by organizing permission mixins within a separate file named eg. `permission_mixins.py`. This approach offers the advantage of simplifying view creation. Define a custom permission class within `permission_mixins.py`, and then, when creating views, inherit from both the desired `viewclass` from `rest_framework.views` and the custom permission class from `permission_mixins`.
+
+This eliminates the need to explicitly define `permission_classes` within `views.py`, especially when fixed permissions are consistently employed. This approach promotes modularization and reduces redundancy in your codebase.
+
 ## REQUEST the endpoint
-#### REQUESTS 
-- Look endpoint properly if `/` is needed or not to pass request body
-`rest_framework.authtoken` needed to be added in `INSTALLED_APP` to get response from header.
+#### Requests
+- Pay careful attention to whether a trailing `/` is required when passing a request body to an endpoint. This distinction is crucial for accurate endpoint navigation.
 
-#### Order
-1. **`/api/`** - Simple api through django
-2. **`/api/product/`** - Passing model return data to endpoint using `model_to_dict` method
-3. **`v1/api/1/`** - GEt the record with primary key(ie. id) =1
-4. **`v1/api/auth/`** - For authentication. To get `token`
+- Remember that for responses obtained from headers, you need to include `rest_framework.authtoken` in the `INSTALLED_APPS` section.
 
+##### Endppoints
+
+1. **`/api/`** - This endpoint provides a simple API utilizing Django's functionality.
+2. **`/api/product/`** - Utilize the `model_to_dict` method to transmit model-generated data to the endpoint.
+3. **`v1/api/1/`** - Retrieve the record with a primary key (e.g., id) equal to 1.
+4. **`v1/api/auth/`** - Access the authentication endpoint to obtain a token for authentication purposes.
