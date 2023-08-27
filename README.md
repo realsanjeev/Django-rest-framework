@@ -113,7 +113,9 @@ class BookAPIView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 ```
 #### Authentication
-- `SessionAuthentication` means user will be authentication until user log out or session expire
+- `SessionAuthentication` means user will be authentication until user log out or session expire.
+- default header is `Authentication Token: tokenaeskds2...`. To change `Token` to other keyword. Change `keyword` in `authentication.py` from `TokenAuthentication` and import in `views`. *Note: response of auth is {'token': 'sal..'} regardless. But when we send header to request resource. It should have {'Authentication': f'Bearer {token}'} as header. `Bearer` is changed keyword* 
+
 
 #### Permission
 - `IsAuthenticatedOrReadOnly` allows user `GET` method while other methods are not allowed. Only authenticated user are allowed other Method, i.e, `POST`, `PUT`, `PATCH` and `DELETE`.
@@ -121,13 +123,30 @@ class BookAPIView(APIView):
 - `IsAuthenticated` only allows authentication user to perform any method operation
 - `IsAdminUser` only allows admin to perform any operation in api. 
 - `DjangoModelPermissions` allows the authentication from django login auth. But it allows `GET` permission regardless. See Documentation
+
+##### Custom Permission
+***Always follow least amount of permission than more permission. It is best code of conduct. ***
+Permission is set by admin and checked in `app-name/permissions.py`
+```python
+# api/permissions.py
+from rest_framework import permission
+
+class IsStaffPermission(permissions.DjangoModelPermissions):
+    def has_permission(self, request, view):
+        user = request.user
+        print(user.get_all_permissions())
+        if not user.is_staff:
+            return False
+        return super().has_permission(request, view)
+```
 ## REQUEST the endpoint
 #### REQUESTS 
-Look endpoint properly if `/` is needed or not to pass request body
-
+- Look endpoint properly if `/` is needed or not to pass request body
+`rest_framework.authtoken` needed to be added in `INSTALLED_APP` to get response from header.
 
 #### Order
 1. **`/api/`** - Simple api through django
 2. **`/api/product/`** - Passing model return data to endpoint using `model_to_dict` method
 3. **`v1/api/1/`** - GEt the record with primary key(ie. id) =1
+4. **`v1/api/auth/`** - For authentication. To get `token`
 

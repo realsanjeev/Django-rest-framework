@@ -3,12 +3,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from books.permissions import IsStaffPermission
+from books.authentication import TokenAuthentication
 from books.serializers import BookSerializer
 from books.models import Book
 
 class BookAPIView(APIView):
-    authentication_classes = [authentication.SessionAuthentication]
-    permission_classes = [permissions.DjangoModelPermissions]
+    queryset = Book.objects.all()
+    authentication_classes = [authentication.SessionAuthentication,
+                              TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser, IsStaffPermission]
+
+    def get_queryset(self):
+        return Book.objects.all()
+    
     def get_object(self, *args, **kwargs):
         pk = kwargs.get("pk")
         if pk is not None:
@@ -18,7 +26,7 @@ class BookAPIView(APIView):
     def get(self, request, *args, **kwargs):
         instance = self.get_object(*args, **kwargs)
         if not instance:
-            queryset = Book.objects.all()
+            queryset = self.get_queryset()
             serializer = BookSerializer(queryset, many=True).data
             return Response({"books_list": serializer}, status=status.HTTP_200_OK)
         serializer = BookSerializer(instance).data
