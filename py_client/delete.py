@@ -1,24 +1,17 @@
+import os
 import requests
 from getpass import getpass
 
-# Auth begins
-username = input("Ente your username: ")
-password = getpass("Enter password: ")
+from auth import try_authentication
 
-auth_endpoint = "http://localhost:8000/v2/api/auth/"
-
-get_auth = requests.post(auth_endpoint, data={"username": username,
-                                         "password": password})
-
-try:
-    token = get_auth.json()["token"] or get_auth.json()["Bearer"]
-    print("Auth token: ", token)
-except:
-    print("Auth Failed")
-    exit()
-
+SECRET_FILE = "secret"
+if os.path.exists(SECRET_FILE):
+    with open(SECRET_FILE, "r") as fp:
+        token = fp.read()
+else:
+    token = try_authentication()
 headers = {
-    "Authorization": f"Token {token}"
+    "Authorization": f"Bearer {token}"
 }
 
 

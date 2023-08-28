@@ -1,5 +1,8 @@
+import os
 import requests
-from getpass import getpass
+from auth import try_authentication
+
+SECRET_FILE = "secret"
 
 # HTTP requests endpoint.
 simple_endpoint = "http://localhost:8000/api/"
@@ -8,24 +11,13 @@ model_endpoint = "http://localhost:8000/api/product"
 # REST_FRAMEWORK endpoints api responder
 book_endpoint = "http://localhost:8000/v2/api/"
 
-# Auth begins
-username = input("Ente your username: ")
-password = getpass("Enter password: ")
-
-auth_endpoint = "http://localhost:8000/v2/api/auth/"
-
-get_auth = requests.post(auth_endpoint, data={"username": username,
-                                         "password": password})
-
-try:
-    token = get_auth.json()["token"] or get_auth.json()["Bearer"]
-    print("Auth token: ", token)
-except:
-    print("Auth Failed")
-    exit()
-
+if os.path.exists(SECRET_FILE):
+    with open(SECRET_FILE, "r") as fp:
+        token = fp.read()
+else:
+    token = try_authentication()
 headers = {
-    "Authorization": f"Token {token}"
+    "Authorization": f"Bearer {token}"
 }
 
 def get_response(url_endpoint: str,
@@ -39,6 +31,9 @@ def get_response(url_endpoint: str,
                             json=json,
                             headers=headers)
     status = response.status_code
+    if status >= 400:
+        try_authentication()
+
     page_source = response.text
     try:
         response_json = response.json()
@@ -56,8 +51,15 @@ def post_response(url_endpoint: str,
                 headers: dict=None):
     print("*"*45)
     print(f"{'*'*4}POST url: {url_endpoint}{'*'*4}")
-    response = requests.post(url_endpoint, params=params, json=json, data=data, headers=headers)
+    response = requests.post(url_endpoint,
+                            params=params,
+                            json=json,
+                            data=data,
+                            headers=headers)
     status = response.status_code
+    if status >= 400:
+        print(f"{'-'*4}Auth needed{'-'*4}")
+        try_authentication()
     page_source = response.text
     try:
         response_json = response.json()
