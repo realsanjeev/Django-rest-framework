@@ -47,7 +47,7 @@ def get_response(url_endpoint: str,
 def post_response(url_endpoint: str,
                 json: dict=None,
                 params: dict=None,
-                data=None,
+                data:dict =None,
                 headers: dict=None):
     print("*"*45)
     print(f"{'*'*4}POST url: {url_endpoint}{'*'*4}")

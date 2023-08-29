@@ -26,9 +26,6 @@ except:
     print(f"Book id {book_id} id not valid")
     endpoint = f"http://localhost:8000/v2/api/"
 
-
-
-
 try:
     get_response = requests.put(endpoint, json=data, headers=headers)
     print(get_response.status_code)

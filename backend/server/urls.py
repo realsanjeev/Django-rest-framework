@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('v2/api/', include('books.urls')),
+    path('v3/api/', include('server.routers')),
 ]

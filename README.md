@@ -1,5 +1,5 @@
 ### Set up environment
-> branch: "default-setting_mixins"
+> branch: "router-viewsets"
 ```
 python -m venv venv
 source venv/Scripts/activate
@@ -177,6 +177,50 @@ We can streamline the process by organizing permission mixins within a separate 
 
 This eliminates the need to explicitly define `permission_classes` within `views.py`, especially when fixed permissions are consistently employed. This approach promotes modularization and reduces redundancy in your codebase.
 
+### Routers and Viewsets
+In smaller projects, it's convenient to organize your `viewsets` in `app/viewsets.py` and define routing using a `router.py` in the main project folder. A `ViewSet class` is a specialized class-based view that doesn't have individual method handlers like `.get()` or `.post()`, but offers actions such as `.list()` and `.create()`. This approach consolidates related views into a single class.
+
+The `Router` simplifies URL pattern generation for `viewsets` and similar structures. It's included in the main URL configuration, making the endpoints accessible to users.
+
+```python
+# server/routers.py
+from rest_framework.routers import DefaultRouter
+from books.viewsets import BookViewSet
+
+router = DefaultRouter()
+router.register("", viewset=BookViewSet, basename='books')
+
+urlpatterns = router.urls
+```
+### URL Reversal in Serializers
+
+In APIs, URL reversal in serializers plays a crucial role in enhancing readability and consistency by providing users with a clear path for navigation. There are two methods to achieve this:
+
+**First Method:**
+
+In  `api/serializer.py`:
+```python
+edit_url = serializers.HyperlinkedIdentityField(
+    view_name="product-edit",
+    lookup_field="pk"
+)
+```
+
+**Second Method:**
+
+In `api/serializer.py`:
+```python
+view_url = serializers.SerializerMethodField(read_only=True)
+# remaining code...
+
+def get_view_url(self, obj):
+    request = self.context.get("request")
+    if request is None:
+        return None
+    return reverse("product-detail", kwargs={'pk': obj.pk}, request=request)
+```
+
+Both methods allow you to generate URLs within your serializer. The first method uses the `HyperlinkedIdentityField` to directly link to a named view. The second method employs the `SerializerMethodField` to create a custom method for generating the URL using the `reverse` function, which provides greater flexibility for customization.
 ## REQUEST the endpoint
 #### Requests
 - Pay careful attention to whether a trailing `/` is required when passing a request body to an endpoint. This distinction is crucial for accurate endpoint navigation.
