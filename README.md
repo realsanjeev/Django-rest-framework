@@ -1,5 +1,5 @@
 ### Set up environment
-> branch: "router-viewsets"
+> branch: "custom-validation"
 ```
 python -m venv venv
 source venv/Scripts/activate
