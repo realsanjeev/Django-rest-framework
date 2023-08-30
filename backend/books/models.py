@@ -10,10 +10,14 @@ class ProductQuerySet(models.QuerySet):
         return self.filter(public=True)
     
     def search(self, query, user=None):
-        lookup = Q(title__icontains=query) | Q(content__icontents=query)
-        qs = self.filter(lookup)
+        lookup = Q(title__icontains=query) | Q(desc__icontains=query)
+        # see for public book
+        qs = self.is_public().filter(lookup)
         if user is not None:
-            qs = qs.filter(user=user)
+            # see query in user profile
+            qs2 = self.filter(user=user).filter(lookup)
+            # get result without repetition
+            qs = (qs | qs2).distinct()
         return qs
 
 class ProductManager(models.Manager):
@@ -21,7 +25,7 @@ class ProductManager(models.Manager):
         return ProductQuerySet(self.model, using=self._db)
     
     def search(self, query, user=None):
-        return self.get_queryset().is_public().search(query, user=user)
+        return self.get_queryset().search(query, user=user)
 
 # Create your models here.
 class Book(models.Model):
@@ -30,6 +34,8 @@ class Book(models.Model):
     desc = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=6, decimal_places=2, default=9.99)
     public = models.BooleanField(default=True)
+
+    objects= ProductManager()
 
     @property
     def sales_price(self):

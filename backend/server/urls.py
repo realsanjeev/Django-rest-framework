@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('v2/api/', include('books.urls')),
     path('v3/api/', include('server.routers')),
+    path('v4/api/search/', include('search.urls')),
 ]

@@ -1,5 +1,5 @@
 ### Set up environment
-> branch: "router-viewsets"
+> branch: "search"
 ```
 python -m venv venv
 source venv/Scripts/activate
@@ -274,6 +274,9 @@ class UserQuerySetMixin():
             return qs
         return qs.filter(**lookup_data)
 ```
+#### Search Operation
+
+
 ## REQUEST the endpoint
 #### Requests
 - Pay careful attention to whether a trailing `/` is required when passing a request body to an endpoint. This distinction is crucial for accurate endpoint navigation.
