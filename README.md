@@ -1,5 +1,5 @@
 ### Set up environment
-> branch: "intro_generic_class"
+> branch: "auth-in-rest"
 ```
 python -m venv venv
 source venv/Scripts/activate
