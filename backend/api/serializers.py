@@ -1,7 +1,21 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from django.contrib.auth import get_user_model
 from api.models import Product
+
+User = get_user_model()
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "id"
+        ]
 
 class ProductSerializer(serializers.ModelSerializer):
     view_url = serializers.SerializerMethodField(read_only=True)
@@ -29,5 +43,3 @@ class ProductSerializer(serializers.ModelSerializer):
         if request is None:
             return None
         return reverse("product-detail", kwargs={'pk': obj.pk}, request=request)
-
-

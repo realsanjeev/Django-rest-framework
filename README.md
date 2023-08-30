@@ -221,6 +221,59 @@ def get_view_url(self, obj):
 ```
 
 Both methods allow you to generate URLs within your serializer. The first method uses the `HyperlinkedIdentityField` to directly link to a named view. The second method employs the `SerializerMethodField` to create a custom method for generating the URL using the `reverse` function, which provides greater flexibility for customization.
+
+`request = self.context.get("request")`  gets data from `BookSerializer(data, context={"request": request})`
+### Validation Serialization
+When we need serialization data to show only specific field and while writing other specific field. We can do this by using `write_only=True` inside serilization field function. and we can mention it while creating a record in model to how to save data after some computation or processing.
+```python
+owner = serializers.CharField(write_only=True)
+
+# since there is no owner in model itself. 
+# To save serializer data. REmove owner data.
+def create(self, validated_data):
+    # it can be done in views itself
+    owner = validated_data.pop("owner")
+    print(f"owner: {owner} and new validated data: {validated_data}")
+    return super().create(validated_data)
+
+def update(self, instance, validated_data):
+    owner = validated_data.pop("owner")
+    return super().update(instance, validated_data)
+
+def get_view_url(self, obj):
+    request = self.context.get("request")
+    if request is None:
+        return None
+    return reverse("product-detail", kwargs={'pk': obj.pk}, request=request)
+```
+
+##### Field content validation
+```python
+title = serializers.CharField()
+#other code..
+def validate_title(self, value):
+    # ignore case sentive constraint
+    qs = Book.objects.filter(title__iexact=value)
+    if qs.exists():
+        raise serializers.ValidationError(f"{value} book already exists")
+```
+#### User Query Mixin
+We can define mixins for `queryset` and inherit it from it as one of class to where custom `queryset` is required which is reusable and consistent.
+```python
+# books/mixins.py
+class UserQuerySetMixin():
+    user_field = "user"
+    allow_staff_view = False
+
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        lookup_data = {}
+        lookup_data[self.user_field] = user
+        qs = super().get_queryset(self, *args, **kwargs)
+        if self.allow_staff_view and user.is_staff:
+            return qs
+        return qs.filter(**lookup_data)
+```
 ## REQUEST the endpoint
 #### Requests
 - Pay careful attention to whether a trailing `/` is required when passing a request body to an endpoint. This distinction is crucial for accurate endpoint navigation.

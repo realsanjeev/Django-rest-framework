@@ -1,18 +1,24 @@
-from rest_framework import status, permissions, generics
-from rest_framework.views import APIView
+from rest_framework import status, permissions
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import LimitOffsetPagination
 
-from books.permissions import IsStaffPermission
-from books.serializers import BookSerializer
 from books.models import Book
+from books.serializers import BookSerializer
+from books.permissions import IsStaffPermission
+from books.pagination import CustomOffsetPagination
 
-class BookAPIView(APIView):
+class BookAPIView(APIView, LimitOffsetPagination):
     queryset = Book.objects.all()
     permission_classes = [permissions.IsAdminUser, IsStaffPermission]
+    pagination_class = CustomOffsetPagination
 
-    def get_queryset(self):
-        return Book.objects.all()
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        if user.is_anonymous:
+            return Book.objects.none()
+        return Book.objects.filter(user=user)
     
     def get_object(self, *args, **kwargs):
         pk = kwargs.get("pk")
@@ -21,46 +27,58 @@ class BookAPIView(APIView):
         return None
 
     def get(self, request, *args, **kwargs):
+        self.serializer_context = {"request": request}
         instance = self.get_object(*args, **kwargs)
+        
+        # Initiate paginator in GET request
+        paginatinator = CustomOffsetPagination()
+        
         if not instance:
-            queryset = self.get_queryset()
-            serializer = BookSerializer(queryset, many=True).data
-            return Response({"books_list": serializer}, status=status.HTTP_200_OK)
-        serializer = BookSerializer(instance).data
+            queryset = Book.objects.all()
+            result_page = paginatinator.paginate_queryset(queryset, request)
+            serializer = BookSerializer(result_page, many=True, context=self.serializer_context)
+            return paginatinator.get_paginated_response(serializer.data)
+        
+        serializer = BookSerializer(instance, context=self.serializer_context).data
         return Response({"detail": serializer})
     
     def post(self, request, *args, **kwargs):
+        self.serializer_context = {"request": request}
         data = request.data
-        serializer = BookSerializer(data=data)
+        serializer = BookSerializer(data=data, context=self.serializer_context)
+        
         if serializer.is_valid(raise_exception=True):
             if not serializer.validated_data.get("desc"):
                 serializer.validated_data["desc"] = serializer.validated_data["title"]
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request, *args, **kwargs):
+        self.serializer_context = {"request": request}
         pk = kwargs.get("pk")
         instance = self.get_object(*args, **kwargs)
+        
         if not instance:
-            return Response({
-                "message": f"Book with id: {pk} doesnot exist"
-            }, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": f"Book with id: {pk} does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        
         data = request.data
-        serializer = BookSerializer(data=data)
+        serializer = BookSerializer(instance, data=data, context=self.serializer_context)
+        
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, *args, **kwargs):
+        self.serializer_context = {"request": request}
         instance = self.get_object(*args, **kwargs)
         pk = kwargs.get("pk")
+        
         if not instance:
-            return Response({"message": f"Record with book id: {pk} Not found"}, 
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": f"Record with book id: {pk} not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         instance.delete()
-        return Response({
-            "detail": f"Book with id: {pk} sucessfully deleted"
-        }, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": f"Book with id: {pk} successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
