@@ -58,3 +58,14 @@ class SearchListView(generics.ListAPIView):
 ```
 
 In summary, these code snippets illustrate how to implement search functionality within the `Book` model using custom querysets, managers, and a viewset. The search can be performed based on the provided query parameter "q" and, if applicable, filtered for user-specific results when a user is authenticated.
+
+### algoliasearch
+Algolia-search is provides api for search which is very good. It is helpful to make search faastr and nice ui response to user for search for keystroke.
+```python
+# configure search engine in settings.py
+ALGOLIA = {
+    'APPLICATION_ID': 'PD8GINBTDB',
+    'API_KEY': '070d05cca4947c1713d8216a2232bfbc'
+}
+
+```

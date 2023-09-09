@@ -1,7 +1,5 @@
 import os
 import requests
-from getpass import getpass
-
 from auth import try_authentication
 
 SECRET_FILE = "secret"

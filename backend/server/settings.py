@@ -37,11 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # internal app
     'api',
     'books',
     'search',
+    # third party packages
     'rest_framework',
     'rest_framework.authtoken',
+    # third party api services
+    'algoliasearch_django',
 ]
 
 MIDDLEWARE = [
@@ -139,4 +143,10 @@ REST_FRAMEWORK = {
     # 'PAGE_SIZE': 5,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 2,
+}
+
+# for environmental variables -> django-dotenv -> reads `.env` file
+ALGOLIA = {
+    'APPLICATION_ID': 'PD8GINBTDB',
+    'API_KEY': '070d05cca4947c1713d8216a2232bfbc'
 }

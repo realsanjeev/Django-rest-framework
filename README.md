@@ -289,3 +289,4 @@ class UserQuerySetMixin():
 2. **`/api/product/`** - Utilize the `model_to_dict` method to transmit model-generated data to the endpoint.
 3. **`v1/api/1/`** - Retrieve the record with a primary key (e.g., id) equal to 1.
 4. **`v1/api/auth/`** - Access the authentication endpoint to obtain a token for authentication purposes.
+5. **`v4/api/search/`** - For search query pamas is in form `/?q=query`.
