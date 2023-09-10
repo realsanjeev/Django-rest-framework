@@ -148,5 +148,6 @@ REST_FRAMEWORK = {
 # for environmental variables -> django-dotenv -> reads `.env` file
 ALGOLIA = {
     'APPLICATION_ID': 'PD8GINBTDB',
-    'API_KEY': '070d05cca4947c1713d8216a2232bfbc'
+    'API_KEY': '070d05cca4947c1713d8216a2232bfbc',
+    'INDEX_PREFIX': 'server',
 }

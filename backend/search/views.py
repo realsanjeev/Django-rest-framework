@@ -1,6 +1,19 @@
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
+
 from books.models import Book
 from books.serializers import BookSerializer
+
+from . import client
+
+class SearchAlgoliaListView(generics.ListAPIView):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get('q')
+        tags = request.GET.get('tags') or None
+        if not query:
+            return Response('', status=status.HTTP_400_BAD_REQUEST)
+        results = client.perform_search(query, tags=tags)
+        return Response(results)
 
 class SearchListView(generics.ListAPIView):
     queryset = Book.objects.all()
@@ -17,3 +30,4 @@ class SearchListView(generics.ListAPIView):
             results  = qs.search(q, user=user)
         return results
     
+

@@ -1,9 +1,12 @@
+import random
 from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from django.db.models.query import QuerySet
 
 User = settings.AUTH_USER_MODEL
+
+MODEL_TAGS_LIST  = ['fiction', 'fantasy', 'romance', 'bio', 'true-story', 'educational']
 
 class ProductQuerySet(models.QuerySet):
     def is_public(self):
@@ -46,3 +49,9 @@ class Book(models.Model):
     
     def __str__(self) -> str:
         return self.title
+    
+    def is_public(self) -> bool:
+        return self.public
+    
+    def get_tag_list(self):
+        return [random.choice(MODEL_TAGS_LIST)]

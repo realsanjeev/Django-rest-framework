@@ -59,13 +59,61 @@ class SearchListView(generics.ListAPIView):
 
 In summary, these code snippets illustrate how to implement search functionality within the `Book` model using custom querysets, managers, and a viewset. The search can be performed based on the provided query parameter "q" and, if applicable, filtered for user-specific results when a user is authenticated.
 
-### algoliasearch
-Algolia-search is provides api for search which is very good. It is helpful to make search faastr and nice ui response to user for search for keystroke.
-```python
-# configure search engine in settings.py
-ALGOLIA = {
-    'APPLICATION_ID': 'PD8GINBTDB',
-    'API_KEY': '070d05cca4947c1713d8216a2232bfbc'
-}
+### Algolia Search API
 
-```
+The Algolia Search API provides a powerful tool for fast and user-friendly search experiences. It allows for seamless integration of search capabilities with a smooth UI response for keystroke-based searches.
+
+To set up Algolia in your Django project, follow these steps:
+
+1. **Configure the Search Engine in settings.py:**
+
+   Add the following information to your project's `settings.py` file:
+
+   ```python
+   # configure search engine in settings.py
+   ALGOLIA = {
+       'APPLICATION_ID': 'PD8GINBTDB',
+       'API_KEY': '070d05cca4947c1713d8216a2232bfbc'
+   }
+   ```
+
+2. **Create an Index File (index.py):**
+
+   Create a file named `index.py` to specify which fields to include in the index for searching. Include the fields that you want to index and search for, and exclude any fields that are not relevant for searching the database.
+
+   Example (`books/index.py`):
+
+   ```python
+   from algoliasearch_django import AlgoliaIndex
+   from algoliasearch_django.decorators import register
+   
+   from .models import Book
+   
+   @register(Book)
+   class BookIndex(AlgoliaIndex):
+       should_index = 'is_public'
+       fields = [
+           'title',
+           'desc',
+           'price',
+           'user',
+           'public',
+       ]
+       settings = {
+           'searchableAttributes': ['title', 'desc'],
+           'attributesForFaceting': ['user', 'public']
+       }
+       tags = 'get_tag_list'  # Optional: define tag list index
+   ```
+
+3. **Reindex in Algolia:**
+
+   After making changes to `index.py`, you'll need to reindex in Algolia. Keep in mind that this process may take some time, especially if the database is large.
+
+   Use the following command to reindex:
+
+   ```bash
+   python manage.py algolia_reindex  
+   ```
+
+This setup enables efficient and responsive search capabilities in your Django project, enhancing the user experience with fast and accurate search results.
