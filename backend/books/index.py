@@ -5,7 +5,7 @@ from .models import Book
 
 @register(Book)
 class BookIndex(AlgoliaIndex):
-    should_index = 'is_public'
+    # should_index = 'is_public'
     fields = [
         'title',
         'desc',
@@ -13,9 +13,10 @@ class BookIndex(AlgoliaIndex):
         'user',
         'public',
     ]
+    # get tag list index
+    tags = 'get_tag_list'
     settings = {
         'searchableAttributes': ['title', 'content'],
         'attributesForFaceting': ['user', 'public']
     }
-    # get tag list index
-    tags = 'get_tag_list'
+    

@@ -8,11 +8,19 @@ from . import client
 
 class SearchAlgoliaListView(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
+        user = None
+        if request.user.is_authenticated:
+            user = request.user.username
+        public = request.GET.get('public')
+        public = str(request.GET.get('public'))  != "0"
+        print("*"*10)
+        print("Public: ", public)
+        print("*"*10)
         query = request.GET.get('q')
         tags = request.GET.get('tags') or None
         if not query:
             return Response('', status=status.HTTP_400_BAD_REQUEST)
-        results = client.perform_search(query, tags=tags)
+        results = client.perform_search(query, tags=tags, user=user, public=public)
         return Response(results)
 
 class SearchListView(generics.ListAPIView):
