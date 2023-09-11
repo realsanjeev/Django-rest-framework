@@ -36,5 +36,3 @@ class BookSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError(f"{value} already exists")
         return value
-    
-

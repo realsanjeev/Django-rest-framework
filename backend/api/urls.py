@@ -22,4 +22,5 @@ urlpatterns = [
      path('article/', article_view.article_list_create_view, name="article-list-create"),
      path('article/<int:pk>/', article_view.article_update_view, name="article-update"),
      path('article/<int:pk>/delete', article_view.article_delete_view, name="article-delete"),
+     path('article/search/', article_view.article_search_view, name="article-search"),
 ]

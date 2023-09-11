@@ -19,4 +19,3 @@ class BookIndex(AlgoliaIndex):
         'searchableAttributes': ['title', 'content'],
         'attributesForFaceting': ['user', 'public']
     }
-    

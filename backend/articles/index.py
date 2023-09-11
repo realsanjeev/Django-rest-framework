@@ -2,12 +2,13 @@ from algoliasearch_django import AlgoliaIndex
 from algoliasearch_django.decorators import register
 
 from .models import Article
+
 @register(Article)
 class ArticleIndex(AlgoliaIndex):
     fields = [
         "user",
         "title",
-        "content",
+        "body",
         "publish_date",
     ]
     tags = "get_tags_list"

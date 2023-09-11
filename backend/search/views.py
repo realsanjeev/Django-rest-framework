@@ -13,14 +13,17 @@ class SearchAlgoliaListView(generics.ListAPIView):
             user = request.user.username
         public = request.GET.get('public')
         public = str(request.GET.get('public'))  != "0"
-        print("*"*10)
-        print("Public: ", public)
-        print("*"*10)
+        # print("*"*10)
+        # print("Public: ", public)
+        # print("*"*10)
         query = request.GET.get('q')
         tags = request.GET.get('tags') or None
         if not query:
             return Response('', status=status.HTTP_400_BAD_REQUEST)
-        results = client.perform_search(query, tags=tags, user=user, public=public)
+        results = client.perform_search(query,
+                                        tags=tags,
+                                        user=user,
+                                        public=public)
         return Response(results)
 
 class SearchListView(generics.ListAPIView):
@@ -37,5 +40,3 @@ class SearchListView(generics.ListAPIView):
                 user = self.request.user
             results  = qs.search(q, user=user)
         return results
-    
-
