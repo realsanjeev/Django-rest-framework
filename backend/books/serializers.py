@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from api.serializers import UserPublicSerializer
 
-
 from books.validations import validate_len
 from books.models import Book
 
