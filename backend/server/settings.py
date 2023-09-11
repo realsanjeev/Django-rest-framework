@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'api',
     'books',
     'search',
+    'articles',
     # third party packages
     'rest_framework',
     'rest_framework.authtoken',

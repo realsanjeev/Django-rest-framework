@@ -6,15 +6,22 @@ from books.validations import validate_len
 from books.models import Book
 
 class BookSerializer(serializers.ModelSerializer):
-    user_detail = UserPublicSerializer(read_only=True, source="user") 
+    author_detail = UserPublicSerializer(read_only=True, source="user") 
     discount = serializers.SerializerMethodField(read_only=True)
     title = serializers.CharField(
         validators=[validate_len]
     )
+    body = serializers.CharField(source="desc")
     
     class Meta:
         model = Book
-        fields = ["user_detail", "id", "title", "desc", "price", "sales_price", "discount"]
+        fields = ["author_detail",
+                "id",
+                "title",
+                "body",
+                "price",
+                "sales_price",
+                "discount"]
 
     def get_discount(self, obj):
         if not hasattr(obj, "get_discount_price"):
