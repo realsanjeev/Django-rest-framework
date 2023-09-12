@@ -40,12 +40,43 @@ To run html in specific port
 ```bash
 python -m http.server 3000
 ```
+## Using CORSHEADERS in Django Project
 
-## CORSHEADERS in Django project
+If you need to handle Cross-Origin Resource Sharing (CORS) in your Django project, you can use the `django-cors-headers` package. Here's a basic setup:
+
+1. Install the package:
+
+```bash
+pip install django-cors-headers
+```
+
+2. Add `'corsheaders'` to your `INSTALLED_APPS`:
+
 ```python
-# example.com/api/<replative path>
+INSTALLED_APPS = [
+    # ...
+    'corsheaders',
+    # ...
+]
+```
+
+3. Update your middleware:
+
+```python
+MIDDLEWARE = [
+    # ...
+    'corsheaders.middleware.CorsMiddleware',
+    # ...
+]
+```
+
+4. Configure CORS settings in your `settings.py`. Below is an example configuration where we allow requests from `localhost:3000` in debug mode:
+
+```python
+# example.com/api/<relative path>
 CORS_URLS_REGEX = r"^/api/.*"
 CORS_ALLOWED_ORIGINS = []
+
 if DEBUG:
     CORS_ALLOWED_ORIGINS += [
         "http://localhost:3000",
@@ -53,10 +84,4 @@ if DEBUG:
     ]
 ```
 
-In middleware add:
-```python
-MIDDLEWARE = [
-    ...,
-    'corsheaders.middleware.CorsMiddleware',
-    ...]
-```
+This configuration allows requests to URLs matching the regex pattern `^/api/.*`, and specifies the allowed origins. In this example, requests from `http://localhost:3000` and `https://localhost:3000` are permitted.
