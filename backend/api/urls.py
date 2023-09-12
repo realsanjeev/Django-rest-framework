@@ -1,4 +1,9 @@
 from django.urls import path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 from . import views
 from articles import views as article_view
 
@@ -6,7 +11,11 @@ urlpatterns = [
 #     ****Product urls*******
 #     path('', views.simple_api),
 #     path('product', views.model_response),
-    path('product/',
+path('token/', TokenObtainPairView.as_view(), name="token-obtain-pair"),
+path('token/refresh/', TokenRefreshView.as_view(), name="token-refresh-view"),
+path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    path('products/',
          views.ProductRetriveCreateAPIView.as_view(),
          name="product-list"),
     path('product/<int:pk>/delete/',

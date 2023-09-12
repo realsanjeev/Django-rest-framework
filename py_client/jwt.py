@@ -10,8 +10,8 @@ class JWTClient:
     access: str =None
     refresh: str =None
     # ensure this matches simplejwt config
-    header_type: str ="Bearer"
-    base_endpoint: str ="http://localhost:8000/"
+    header_type: str ="Token"
+    base_endpoint: str ="http://localhost:8000/api"
     # file path is insecure
     cred_path: Path = Path("creds.json")
 
@@ -68,7 +68,7 @@ class JWTClient:
         password = getpass("Enter password: ")
         req = requests.post(endpoint, json={"username": username, "password":password})
         if req.status_code != 200:
-            raise requests.exceptions(f"Acess not granted: {req.text}")
+            raise requests.RequestException(f"Acess not granted: {req.text}")
         print("Access Granted")
         self.write_creds(req.json())
     
@@ -86,7 +86,7 @@ class JWTClient:
         data = {
             "token": f"{self.access}"
         }
-        endpoint = f"{self.base_endpoint}/token/verify"
+        endpoint = f"{self.base_endpoint}/token/verify/"
         req = requests.post(endpoint, json=data)
         return req.status_code == 200
     
@@ -118,13 +118,17 @@ class JWTClient:
         self.write_creds(stored_data)
         return True
     
-    def list(self, endpoint=None, limit=3):
+    def list(self, endpoint=None, page=1):
         headers = self.get_headers()
         if endpoint is None or self.base_endpoint not in str(endpoint):
-            endpoint = f"{self.base_endpoint}/products/?limit={limit}"
+            endpoint = f"{self.base_endpoint}/products/?page={page}"
         req = requests.get(endpoint, headers=headers)
+        print("*"*10)
+        print(req.json())
+        print(headers)
+        print("*"*10)
         if req.status_code != 200:
-            raise requests.exceptions(f"Request failed: {req.text}")
+            raise requests.RequestException(f"Request failed: {req.text}")
         data = req.json()
         return data
     
@@ -135,3 +139,5 @@ if __name__ == "__main__":
     next_url = lookup_data.get("next")
     print(f'results: {results}')
     print("Next url: ", next_url)
+
+
