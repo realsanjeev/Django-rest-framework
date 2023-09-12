@@ -10,7 +10,7 @@ class JWTClient:
     access: str =None
     refresh: str =None
     # ensure this matches simplejwt config
-    header_type: str ="Token"
+    header_type: str ="Bearer"
     base_endpoint: str ="http://localhost:8000/api"
     # file path is insecure
     cred_path: Path = Path("creds.json")

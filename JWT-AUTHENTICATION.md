@@ -13,8 +13,13 @@ REST_FRAMEWORK = {
 }
 ```
 
-To use custom header type change it at `SIMPLE_JWT`
-**Check for futher information Header Type is not changing here**
+**Customizing Authentication Header Type:**
+
+To modify the header type, navigate to the `SIMPLE_JWT` section in your `settings.py` file. Adjust the `AUTH_HEADER_TYPES` parameter as needed.
+
+**Note:**
+Ensure that the header type is correctly specified in the `authenticated` section of your code. Also watch the `DEFAULT_PERMISSION_CLASSES` in `settings.py` for which permission is given.
+
 ```python
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
@@ -29,3 +34,29 @@ SIMPLE_JWT = {
 - `REFRESH_TOKEN_LIFETIME`: This sets the lifetime or expiration time for refresh tokens to 1 day. Refresh tokens are typically longer-lived tokens that are used to obtain new access tokens when they expire without requiring the user to log in again.
 
 To decode jwt: `https://jwt.io/`
+
+## JS Client
+To run html in specific port 
+```bash
+python -m http.server 3000
+```
+
+## CORSHEADERS in Django project
+```python
+# example.com/api/<replative path>
+CORS_URLS_REGEX = r"^/api/.*"
+CORS_ALLOWED_ORIGINS = []
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += [
+        "http://localhost:3000",
+        "https://localhost:3000",
+    ]
+```
+
+In middleware add:
+```python
+MIDDLEWARE = [
+    ...,
+    'corsheaders.middleware.CorsMiddleware',
+    ...]
+```

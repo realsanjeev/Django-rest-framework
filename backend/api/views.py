@@ -2,7 +2,8 @@ import json
 from django.http import JsonResponse
 from django.forms.models import model_to_dict
 
-from rest_framework import generics, mixins
+from rest_framework import generics, permissions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from api.serializers import ProductSerializer
 from api.models import Product
 
@@ -47,7 +48,7 @@ def model_response(request, *args, **kwargs):
          return JsonResponse(data)
     return JsonResponse({"err": "The database is not reponding properly"})
 
-class ProductRetriveCreateAPIView(generics.ListCreateAPIView):
+class ProductRetriveCreateAPIView(JWTAuthentication,generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "pk"
@@ -59,8 +60,9 @@ class ProductRetriveCreateAPIView(generics.ListCreateAPIView):
             content = title
         serializer.save(content=content)
 
-class ProductDestroyAPIView(generics.DestroyAPIView):
+class ProductDestroyAPIView(JWTAuthentication, generics.DestroyAPIView):
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
     lookup_field = "pk"
 
     def perform_destroy(self, instance):
@@ -68,6 +70,7 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
     
 class ProductUpdateAPIView(generics.UpdateAPIView):
     queryset = Product.objects.all()
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
     serializer_class = ProductSerializer
     lookup_field = "pk"
     print("Update initiated")
@@ -79,5 +82,6 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
     serializer_class = ProductSerializer
     lookup_field = 'pk'
