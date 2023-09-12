@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yeb=)l+9#@)=mddhc9ny$%r#j5*-80w)80(&w#mm8@yma5w@#i'
+SECRET_KEY = os.environ.get('SECRET_KEY', "change-this-in-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 
 # Application definition
@@ -147,7 +152,7 @@ REST_FRAMEWORK = {
 
 # for environmental variables -> django-dotenv -> reads `.env` file
 ALGOLIA = {
-    'APPLICATION_ID': 'PD8GINBTDB',
-    'API_KEY': '070d05cca4947c1713d8216a2232bfbc',
-    'INDEX_PREFIX': 'server',
+    'APPLICATION_ID': os.environ.get('ALGOLIA_APP_ID'),
+    'API_KEY': os.environ.get('ALGOLIA_API_KEY'),
+    'INDEX_PREFIX': os.environ.get('ALGOLIA_INDEX_PREFIX'),
 }

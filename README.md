@@ -1,29 +1,68 @@
+# Django REST Framework Project
+
+A comprehensive guide and implementation of a RESTful API using Django and Django REST Framework. This project demonstrates key concepts such as serialization, viewsets, authentication, permissions, and search integration.
+
+## Technologies Used
+
+-   **Python**
+-   **Django** (>=4.1)
+-   **Django REST Framework**
+-   **Algolia Search** (algoliasearch-django)
+-   **PyYAML**
+-   **Requests**
+-   **Python-dotenv**
+
+## Setup Instructions
+
 ### Set up environment
-> branch: "search"
-```
-python -m venv venv
-source venv/Scripts/activate
-pip install -r requirements.txt
-```
-#### Start the project
-```
-django-admin startproject server .
+
+> **Branch:** `search`
+
+1.  **Create and activate virtual environment**
+
+    **Linux/macOS:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    ```
+
+    **Windows:**
+    ```bash
+    python -m venv venv
+    venv\Scripts\activate
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Start the project
+
+```bash
+cd backend
 python manage.py runserver 8000
 ```
+
+## Key Concepts & Documentation
+
 ### Django RESTful
-- **`JsonResponse`**: This function is employed to send data in the `json` format to an endpoint. It's a straightforward way to structure and transmit JSON data within the response.
 
-- **`HttpResponse`**: This function is used to transmit data in the `text/html` format to an endpoint. While it can be adjusted to send `json` data by modifying the HTTP headers, this approach can be cumbersome.
+-   **`JsonResponse`**: This function is employed to send data in the `json` format to an endpoint. It's a straightforward way to structure and transmit JSON data within the response.
+-   **`HttpResponse`**: This function is used to transmit data in the `text/html` format to an endpoint. While it can be adjusted to send `json` data by modifying the HTTP headers, this approach can be cumbersome.
 
-- When dealing with data that requires additional processing or calculations in your model, sending JSON data without utilizing the Django framework can involve a substantial amount of coding.
+When dealing with data that requires additional processing or calculations in your model, sending JSON data without utilizing the Django framework can involve a substantial amount of coding.
 
-#### Django_rest_framework
+### Django REST Framework
+
 It is essential to serialize data into JSON format to be sent as a REST API response and deserialize incoming requests to be processed on the backend. The Django Rest Framework offers a variety of tools for sending and receiving data, facilitating the work with REST APIs on the backend. This framework is built on top of the Django framework.
+
+#### Serialization
 
 One approach to serialization involves using the `@property` decorator in the `models.py` file. By directly specifying the function's name as a field in the `serializer.py` file, we can achieve serialization as shown below:
 
+**In `models.py`:**
 ```python
-# In models.py 
 class ModelName(models.Model):
     # ...other code
     @property
@@ -31,10 +70,8 @@ class ModelName(models.Model):
         return '%.2f' % (float(self.price) * 0.7)
 ```
 
-In `serializers.py`:
-
+**In `serializers.py`:**
 ```python
-# serializers.py
 class ModelNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = ModelName
@@ -60,10 +97,11 @@ class MyModelSerializer(serializers.ModelSerializer):
         return obj.get_discount_price()
 ```
 
-
 ### Class View
+
 #### Generic View
-In order to retrieve data from a model, certain attributes such as `lookup_field`, `queryset`, and `serializer_class` need to be defined. This ensures the correct retrieval of data. Here's the explanation and a corrected version of the provided code:
+
+In order to retrieve data from a model, certain attributes such as `lookup_field`, `queryset`, and `serializer_class` need to be defined. This ensures the correct retrieval of data.
 
 ```python
 # Explanation:
@@ -121,23 +159,18 @@ class BookAPIView(APIView):
 
 #### Authentication
 
-- The `SessionAuthentication` class signifies that a user remains authenticated until they log out or their session expires.
-
-- By default, the authentication header is in the format `Authentication: Token tokenaeskds2...`. To customize the keyword used in the header, modify the `authentication.py` file from `TokenAuthentication`. Once changed, import the altered class into your `views`. Keep in mind that the authentication response will continue to be in the form `{'token': 'sal..'}`. However, when sending a header to request a resource, the header should be formatted as `{'Authorization': f'Bearer {token}'}`, where `Bearer` is the updated keyword.
+-   The `SessionAuthentication` class signifies that a user remains authenticated until they log out or their session expires.
+-   By default, the authentication header is in the format `Authentication: Token tokenaeskds2...`. To customize the keyword used in the header, modify the `authentication.py` file from `TokenAuthentication`. Once changed, import the altered class into your `views`. Keep in mind that the authentication response will continue to be in the form `{'token': 'sal..'}`. However, when sending a header to request a resource, the header should be formatted as `{'Authorization': f'Bearer {token}'}`, where `Bearer` is the updated keyword.
 
 #### Permissions
 
 Permissions control the actions that different users can perform within a REST API:
 
-- The `IsAuthenticatedOrReadOnly` permission grants users permission to use the `GET` method while restricting other methods. For instance, only authenticated users are permitted to use methods like `POST`, `PUT`, `PATCH`, and `DELETE`.
-
-- The `AllowAny` permission allows unrestricted access to all methods without requiring authentication, if placed within the designated scope.
-
-- The `IsAuthenticated` permission exclusively permits authenticated users to perform any operation.
-
-- The `IsAdminUser` permission confines API operations to administrators only.
-
-- The `DjangoModelPermissions` permission is aligned with the Django authentication system. However, it grants permission for the `GET` method by default. For a more comprehensive understanding, refer to the documentation.
+-   **`IsAuthenticatedOrReadOnly`**: Grants users permission to use the `GET` method while restricting other methods. For instance, only authenticated users are permitted to use methods like `POST`, `PUT`, `PATCH`, and `DELETE`.
+-   **`AllowAny`**: Allows unrestricted access to all methods without requiring authentication, if placed within the designated scope.
+-   **`IsAuthenticated`**: Exclusively permits authenticated users to perform any operation.
+-   **`IsAdminUser`**: Confines API operations to administrators only.
+-   **`DjangoModelPermissions`**: Aligned with the Django authentication system. However, it grants permission for the `GET` method by default. For a more comprehensive understanding, refer to the documentation.
 
 ##### Custom Permissions
 
@@ -157,6 +190,7 @@ class IsStaffPermission(permissions.DjangoModelPermissions):
             return False
         return super().has_permission(request, view)
 ```
+
 #### Default REST Framework Settings and Mixins
 
 These configurations are applied when you wish to utilize default settings across your entire project's API. To implement this, add the following to your `settings.py` file:
@@ -178,6 +212,7 @@ We can streamline the process by organizing permission mixins within a separate 
 This eliminates the need to explicitly define `permission_classes` within `views.py`, especially when fixed permissions are consistently employed. This approach promotes modularization and reduces redundancy in your codebase.
 
 ### Routers and Viewsets
+
 In smaller projects, it's convenient to organize your `viewsets` in `app/viewsets.py` and define routing using a `router.py` in the main project folder. A `ViewSet class` is a specialized class-based view that doesn't have individual method handlers like `.get()` or `.post()`, but offers actions such as `.list()` and `.create()`. This approach consolidates related views into a single class.
 
 The `Router` simplifies URL pattern generation for `viewsets` and similar structures. It's included in the main URL configuration, making the endpoints accessible to users.
@@ -192,13 +227,14 @@ router.register("", viewset=BookViewSet, basename='books')
 
 urlpatterns = router.urls
 ```
+
 ### URL Reversal in Serializers
 
 In APIs, URL reversal in serializers plays a crucial role in enhancing readability and consistency by providing users with a clear path for navigation. There are two methods to achieve this:
 
 **First Method:**
 
-In  `api/serializer.py`:
+In `api/serializer.py`:
 ```python
 edit_url = serializers.HyperlinkedIdentityField(
     view_name="product-edit",
@@ -222,9 +258,12 @@ def get_view_url(self, obj):
 
 Both methods allow you to generate URLs within your serializer. The first method uses the `HyperlinkedIdentityField` to directly link to a named view. The second method employs the `SerializerMethodField` to create a custom method for generating the URL using the `reverse` function, which provides greater flexibility for customization.
 
-`request = self.context.get("request")`  gets data from `BookSerializer(data, context={"request": request})`
+`request = self.context.get("request")` gets data from `BookSerializer(data, context={"request": request})`
+
 ### Validation Serialization
+
 When we need serialization data to show only specific field and while writing other specific field. We can do this by using `write_only=True` inside serilization field function. and we can mention it while creating a record in model to how to save data after some computation or processing.
+
 ```python
 owner = serializers.CharField(write_only=True)
 
@@ -248,6 +287,7 @@ def get_view_url(self, obj):
 ```
 
 ##### Field content validation
+
 ```python
 title = serializers.CharField()
 #other code..
@@ -257,8 +297,11 @@ def validate_title(self, value):
     if qs.exists():
         raise serializers.ValidationError(f"{value} book already exists")
 ```
+
 #### User Query Mixin
+
 We can define mixins for `queryset` and inherit it from it as one of class to where custom `queryset` is required which is reusable and consistent.
+
 ```python
 # books/mixins.py
 class UserQuerySetMixin():
@@ -274,19 +317,11 @@ class UserQuerySetMixin():
             return qs
         return qs.filter(**lookup_data)
 ```
-#### Search Operation
 
+### Endpoints
 
-## REQUEST the endpoint
-#### Requests
-- Pay careful attention to whether a trailing `/` is required when passing a request body to an endpoint. This distinction is crucial for accurate endpoint navigation.
-
-- Remember that for responses obtained from headers, you need to include `rest_framework.authtoken` in the `INSTALLED_APPS` section.
-
-##### Endppoints
-
-1. **`/api/`** - This endpoint provides a simple API utilizing Django's functionality.
-2. **`/api/product/`** - Utilize the `model_to_dict` method to transmit model-generated data to the endpoint.
-3. **`v1/api/1/`** - Retrieve the record with a primary key (e.g., id) equal to 1.
-4. **`v1/api/auth/`** - Access the authentication endpoint to obtain a token for authentication purposes.
-5. **`v4/api/search/`** - For search query pamas is in form `/?q=query`.
+1.  **`/api/`** - This endpoint provides a simple API utilizing Django's functionality.
+2.  **`/api/product/`** - Utilize the `model_to_dict` method to transmit model-generated data to the endpoint.
+3.  **`v1/api/1/`** - Retrieve the record with a primary key (e.g., id) equal to 1.
+4.  **`v1/api/auth/`** - Access the authentication endpoint to obtain a token for authentication purposes.
+5.  **`v4/api/search/`** - For search query params is in form `/?q=query`.

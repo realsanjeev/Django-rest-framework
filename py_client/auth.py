@@ -1,24 +1,36 @@
 import os
 import requests
 from getpass import getpass
-# username = getuser() #get username of pc
 
 def try_authentication():
-    username = input("Ente your username: ")
+    username = input("Enter your username: ")
     password = getpass("Enter password: ")
     endpoint = "http://localhost:8000/v2/api/auth/"
     
-    get_auth = requests.post(endpoint, data={"username": username,
-                                            "password": password})
+    response = requests.post(endpoint, data={
+        "username": username,
+        "password": password
+    })
 
     try:
-        token = get_auth.json()['token'] or get_auth.json()['Bearer']
-        with open("secret", "w") as file_handler:
-            file_handler.write(token)
-        print("Auth response: ", get_auth.json())
-        return token
-    except Exception as err:
-        raise f"Auth fail: {err}"
+        data = response.json()
+    except ValueError:
+        raise RuntimeError("Server did not return valid JSON.")
 
-if __name__=="__main__":
+    if response.status_code != 200:
+        raise RuntimeError(f"Auth failed: {data}")
+
+    # Safely read either 'token' or 'Bearer'
+    token = data.get("token") or data.get("Bearer")
+    if not token:
+        raise RuntimeError(f"Auth failed: no token in response {data}")
+
+    with open("secret", "w") as file_handler:
+        file_handler.write(token)
+
+    print("Auth response:", data)
+    return token
+
+
+if __name__ == "__main__":
     try_authentication()
