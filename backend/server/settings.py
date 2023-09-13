@@ -63,7 +63,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'server.urls'
-CORS_URLS_REGEX = r"^/api/.*"
+# CORS_URLS_REGEX = r"^/api/.*"
 CORS_ALLOWED_ORIGINS = []
 if DEBUG:
     CORS_ALLOWED_ORIGINS += [

@@ -1,6 +1,6 @@
 const loginForm = document.getElementById("login-form");
 const contentContainer = document.getElementById("product-container");
-const searchForm =document.getElementById("search-form");
+const searchForm = document.getElementById("search-form");
 const baseEndpoint = "http://localhost:8000/api";
 
 if (loginForm) {
@@ -11,43 +11,61 @@ if (searchForm) {
 }
 function handleSearch(e) {
     e.preventDefault();
+
+    // Get the search form data
     const searchFormData = new FormData(searchForm);
-    const queryData = Object.fromEntries(searchForm);
+    const queryData = Object.fromEntries(searchFormData);
     const searchParams = new URLSearchParams(queryData);
-    const searchEndpoints = `${baseEndpoint}/search/?${searchParams}`
-    const accessToken = localStorage.getItem("access")
+    const searchEndpoint = `http://localhost:8000/v4/api/search/v2/?${searchParams.toString()}`;
+
+    // Prepare headers
     const headers = {
         "Content-Type": "application/json"
+    };
+
+    // Refresh the access token if needed
+    refreshAccessToken();
+    const accessToken = localStorage.getItem("access");
+    if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
     }
-    if (accessToken) headers["Authorization"] = `Bearer ${accessToken}`
+
+    // Create fetch options
     const options = {
         method: "GET",
         headers: headers
-    }
-    fetch(endpoint, options)
-    .then(res => res.json())
-    .then(data => {
-        const validData = isTokenValid(data);
-        if (validData && contentContainer) {
-            contentContainer.innerHTML = ""
-            if (data && data.hits) {
-                let htmlStr = "";
-                for (let result of data.hits) {
-                    htmlStr += `<li>${result.title}</li>`
-                }
-                contentContainer.innerHTML = htmlStr;
-                if (data.hits.length===0) {
-                    contentContainerinnerHTML = "<p>No results Found</p>"
-                } else {
-                    contentContainer.innerHTML = "<p>No results found</p>"
+    };
+
+    // Make the API request
+    fetch(searchEndpoint, options)
+        .then(res => {
+            console.log(res)
+            if (!res.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("data:", data);
+            if (contentContainer) {
+                contentContainer.innerHTML = "";
+                if (data && data.hits) {
+                    let htmlStr = "";
+                    for (let result of data.hits) {
+                        htmlStr += `<li><pre>${JSON.stringify(result.title, null, 2)}</pre></li>`;
+                    }
+                    contentContainer.innerHTML = htmlStr;
+                    if (data.hits.length === 0) {
+                        contentContainer.innerHTML = "<p>No results found</p>";
+                    }
                 }
             }
-        }
-    })
-    .catch(err => console.log("error search: ", err))
+        })
+        .catch(err => console.error("Error searching:", err));
 }
 
-function handleLogin (e) {
+
+function handleLogin(e) {
     e.preventDefault();
     const loginEndpoint = `${baseEndpoint}/token/`;
     const loginFormData = new FormData(loginForm);
@@ -60,13 +78,13 @@ function handleLogin (e) {
         body: JSON.stringify(loginObjectFormData)
     }
     fetch(loginEndpoint, options)
-    .then(res => {
-        return res.json()
-    })
-    .then(data => handleAuthData(data, productList))
-    .catch(err => {
-        console.log("err", err)
-    })
+        .then(res => {
+            return res.json()
+        })
+        .then(data => handleAuthData(data, productList))
+        .catch(err => {
+            console.log("err", err)
+        })
 }
 
 function handleAuthData(authData, callback) {
@@ -96,16 +114,16 @@ const productList = () => {
         }
     }
     fetch(productListEndpoint, options)
-    .then(res => {
-        return Promise.all([res.json(), Promise.resolve(res.status)]);
-    })
-    .then(([data, statusCode])=> {
-        if (statusCode !=200) return refreshAccessToken();
-        writeInContainer(data)
-    })
-    .catch(err => {
-        console.log("Error: ", err);
-    });
+        .then(res => {
+            return Promise.all([res.json(), Promise.resolve(res.status)]);
+        })
+        .then(([data, statusCode]) => {
+            if (statusCode != 200) return refreshAccessToken();
+            writeInContainer(data)
+        })
+        .catch(err => {
+            console.log("Error: ", err);
+        });
 }
 
 function writeInContainer(data) {
@@ -114,9 +132,9 @@ function writeInContainer(data) {
     }
 }
 
-function isTokenValid (token){
+function isTokenValid(token) {
     if (token.code && token.code === "token_not_valid") {
-        alert("Please login again!!!");
+        refreshAccessToken();
         return false
     }
     return true
@@ -140,14 +158,15 @@ function validateJWTToken() {
         })
     }
     fetch(endpoint, options)
-    .then(res => {
-        console.log("res: ",res)
-        return res.json()})
-    .then(data => {
-        // refresh token
-        console.log("validate res: ",data)
-    })
-    .catch(err => console.log("Validate error:", err))
+        .then(res => {
+            console.log("res: ", res)
+            return res.json()
+        })
+        .then(data => {
+            // refresh token
+            console.log("validate res: ", data)
+        })
+        .catch(err => console.log("Validate error:", err))
 }
 
 function refreshAccessToken() {
@@ -165,7 +184,7 @@ function refreshAccessToken() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("access")}`
         },
-        body: JSON.stringify({refresh: refreshToken}) 
+        body: JSON.stringify({ refresh: refreshToken })
     };
 
     fetch(refreshTokenEndpoint, options)
@@ -175,7 +194,6 @@ function refreshAccessToken() {
         .then(([data, statusCode]) => {
             if (statusCode === 200) {
                 localStorage.setItem("access", data.access);
-                productList();
             }
             console.log(statusCode, "refresh res: ", data);
         })
@@ -186,7 +204,7 @@ function refreshAccessToken() {
 function isPreviousAuthenticated() {
     const accessToken = localStorage.getItem("access") || null;
     const refreshToken = localStorage.getItem("refresh") || null;
-    if (!accessToken){
+    if (!accessToken) {
         if (!refreshToken) {
             // contentContainer.innerHTML = "<h3>Authentication needed</h3>"
             return null
@@ -196,3 +214,50 @@ function isPreviousAuthenticated() {
 }
 
 isPreviousAuthenticated();
+
+const searchClient = algoliasearch(
+    'PD8GINBTDB',
+    '5147ce3ac67e078d7d6a58e9167f0fb8'
+)
+
+const search = instantsearch({
+  indexName: 'server_Book',
+  searchClient,
+});
+
+search.addWidgets([
+  instantsearch.widgets.searchBox({
+    container: '#searchbox',
+  }),
+
+    instantsearch.widgets.clearRefinements({
+    container: "#clear-refinements"
+    }),
+
+
+  instantsearch.widgets.refinementList({
+      container: "#user-list",
+      attribute: 'user'
+  }),
+  instantsearch.widgets.refinementList({
+    container: "#public-list",
+    attribute: 'public'
+}),
+
+
+  instantsearch.widgets.hits({
+    container: '#hits',
+    templates: {
+        item: `
+            <div>
+                <div>{{#helpers.highlight}}{ "attribute": "title" }{{/helpers.highlight}}</div>
+                <div>{{#helpers.highlight}}{ "attribute": "body" }{{/helpers.highlight}}</div>
+                
+                <p>{{ user }}</p><p>\${{ price }}
+            
+            </div>`
+    }
+  })
+]);
+
+search.start();

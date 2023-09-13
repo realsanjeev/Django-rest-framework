@@ -117,3 +117,6 @@ To set up Algolia in your Django project, follow these steps:
    ```
 
 This setup enables efficient and responsive search capabilities in your Django project, enhancing the user experience with fast and accurate search results.
+
+## Note
+Make sure `index_name` is properly assign which is needed in client side to get response from server(algolia)
