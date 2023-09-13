@@ -1,16 +1,20 @@
 import os
+import json
 import requests
-from auth import try_authentication
+from jwt_client import JWTClient
 
-SECRET_FILE = "secret"
+client = JWTClient()
+SECRET_FILE = "creds.json"
+client = JWTClient()
 if os.path.exists(SECRET_FILE):
     with open(SECRET_FILE, "r") as fp:
-        token = fp.read()
+        content = fp.read()
+    token = json.loads(content)["access"]
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
 else:
-    token = try_authentication()
-headers = {
-    "Authorization": f"Bearer {token}"
-}
+    headers = client.get_headers()
 
 book_id = input("Enter id of book needed to update: ")
 data = {
@@ -27,7 +31,8 @@ except:
     endpoint = f"http://localhost:8000/v2/api/"
 
 try:
+    headers = client.get_headers()
     get_response = requests.put(endpoint, json=data, headers=headers)
     print(get_response.status_code)
 except:
-    print("Error while communication with endpoint")
+    print("[ERROR] Error while communication with endpoint")

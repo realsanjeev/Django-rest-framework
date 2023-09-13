@@ -123,10 +123,6 @@ class JWTClient:
         if endpoint is None or self.base_endpoint not in str(endpoint):
             endpoint = f"{self.base_endpoint}/products/?page={page}"
         req = requests.get(endpoint, headers=headers)
-        print("*"*10)
-        print(req.json())
-        print(headers)
-        print("*"*10)
         if req.status_code != 200:
             raise requests.RequestException(f"Request failed: {req.text}")
         data = req.json()

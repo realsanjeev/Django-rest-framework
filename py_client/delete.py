@@ -1,17 +1,7 @@
 import os
+import json
 import requests
-from auth import try_authentication
-
-SECRET_FILE = "secret"
-if os.path.exists(SECRET_FILE):
-    with open(SECRET_FILE, "r") as fp:
-        token = fp.read()
-else:
-    token = try_authentication()
-headers = {
-    "Authorization": f"Bearer {token}"
-}
-
+from jwt_client import JWTClient
 
 book_id = input("Enter id of book needed to delete: ")
 
@@ -21,6 +11,18 @@ except:
     print(f"Book id {book_id} id not valid")
     book_id = None
 
+client = JWTClient()
+SECRET_FILE = "creds.json"
+client = JWTClient()
+if os.path.exists(SECRET_FILE):
+    with open(SECRET_FILE, "r") as fp:
+        content = fp.read()
+    token = json.loads(content)["access"]
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+else:
+    headers = client.get_headers()
 
 endpoint = f"http://localhost:8000/v2/api/{book_id}/"
 try:

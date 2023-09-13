@@ -1,19 +1,22 @@
 import os
+import json
 import requests
-from auth import try_authentication
-
-SECRET_FILE = "secret"
+from jwt_client import JWTClient
 
 endpoint = "http://localhost:8000/v2/api/1"
 
+client = JWTClient()
+SECRET_FILE = "creds.json"
+client = JWTClient()
 if os.path.exists(SECRET_FILE):
     with open(SECRET_FILE, "r") as fp:
-        token = fp.read()
+        content = fp.read()
+    token = json.loads(content)["access"]
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
 else:
-    token = try_authentication()
-headers = {
-    "Authorization": f"Bearer {token}"
-}
+    headers = client.get_headers()
 
 def get_response(url_endpoint: str,
                 json: dict=None,

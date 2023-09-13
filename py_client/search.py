@@ -1,19 +1,24 @@
 import os
+import json
 import requests
-from auth import try_authentication
+from jwt_client import JWTClient
 
-SECRET_FILE = "secret"
-
-if os.path.exists(SECRET_FILE):
-	with open(SECRET_FILE, 'r') as fp:
-		token = fp.read()
-else:
-	token = try_authentication()
-headers = {
-	"Authorization": f"Bearer {token}"
-}
 endpoint = "http://localhost:8000/v4/api/search/"
 query = input("Enter search query: ")
+
+client = JWTClient()
+SECRET_FILE = "creds.json"
+client = JWTClient()
+if os.path.exists(SECRET_FILE):
+    with open(SECRET_FILE, "r") as fp:
+        content = fp.read()
+    token = json.loads(content)["access"]
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+else:
+    headers = client.get_headers()
+
 try:
 	get_response = requests.get(endpoint, headers=headers, params={"q": query})
 	print(get_response.json())
