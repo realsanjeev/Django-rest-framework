@@ -9,18 +9,23 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import os
 import datetime
 from pathlib import Path
 
+import dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# load .env file
+ENV_FILE_PATH = BASE_DIR / ".env"
+dotenv.read_dotenv(str(ENV_FILE_PATH))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yeb=)l+9#@)=mddhc9ny$%r#j5*-80w)80(&w#mm8@yma5w@#i'
+SECRET_KEY = os.environ.get("PRODUCTION_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -159,13 +164,13 @@ REST_FRAMEWORK = {
 
 # for environmental variables -> django-dotenv -> reads `.env` file
 ALGOLIA = {
-    'APPLICATION_ID': 'PD8GINBTDB',
-    'API_KEY': '070d05cca4947c1713d8216a2232bfbc',
+    'APPLICATION_ID': os.environ.get("ALGOLIA_APPLICATION_ID"),
+    'API_KEY': os.environ.get("ALGOLIA_API_KEY"),
     'INDEX_PREFIX': 'server',
 }
 
 SIMPLE_JWT = {
-    # "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_TYPES": ("Bearer",),
     "ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=30),
     "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=1)
 }
