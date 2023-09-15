@@ -1,6 +1,7 @@
 django>=4.1
 django-cors-headers
 djangorestframework
+django-dotenv
 pyyaml
 requests
 algoliasearch-django>=3.0,<4.
